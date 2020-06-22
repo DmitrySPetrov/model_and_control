@@ -47,6 +47,9 @@ void motion_step( double dt,
 			double dr2 = dr.dot( dr );
 			dr.normalize();
 			vector f = Grav * a->mass * b->mass * dr / dr2;
+			//	Increment object gravity forces
+			a->force += f;
+			b->force += f;
 		}
 	}
 }
