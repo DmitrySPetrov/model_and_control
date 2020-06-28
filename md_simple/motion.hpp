@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <vector>
 #include <Eigen/Dense>
 
 namespace SoyuzSim {
@@ -40,7 +41,7 @@ struct engine_t {
 
 struct spacecraft_t: moving_object_t {
 
-	std::list< engine_t > engine;
+	std::vector< engine_t > engine;
 
 	//	Compute sum force and momentum, store to moving_object_t fields
 	void compute_engine_influence();
@@ -57,7 +58,8 @@ struct gravity_center_t: moving_object_t {
 
 void motion_step( double dt,
 	std::list< spacecraft_t * > scl,
-	std::list< gravity_center_t * > obj_list
+	std::list< gravity_center_t * > obj_list,
+	bool move_gravity_centers=true
 );
 
 }	//	namespace SoyuzSim
