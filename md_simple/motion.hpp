@@ -9,6 +9,8 @@ using vector = Eigen::Vector3d;
 using matrix = Eigen::Matrix3d;
 using quaternion = Eigen::Quaterniond;
 
+using vectorX = Eigen::VectorXd;
+
 struct moving_object_t {
 
 	double mass = 0.0;
@@ -21,7 +23,7 @@ struct moving_object_t {
 	quaternion L = quaternion::Identity();	//	quaternion ICRS to CCRS
 	vector omega = vector::Zero();			//	angular velocity
 	vector eps = vector::Zero();			//	angular acceleration on last step
-	vector momentum = vector::Zero();		//	result force momentum on last step
+	vector N = vector::Zero();				//	result force momentum on last step
 
 	vector driving_force = vector::Zero();		//	non-gravity driving force (engines)
 	vector driving_momentum = vector::Zero();	//	non-gravity driving momentum (engines)

@@ -1,5 +1,7 @@
 #include <motion.hpp>
 
+#include <vector>
+
 const double Grav = 6.67430e-11;
 
 namespace SoyuzSim {
@@ -20,6 +22,7 @@ void spacecraft_t::compute_engine_influence() {
 	}
 }
 
+//	Calculate state vector for t + dt
 void motion_step( double dt,
 	std::list< spacecraft_t * > scl,
 	std::list< gravity_center_t * > masses,
@@ -29,20 +32,49 @@ void motion_step( double dt,
 		sc->compute_engine_influence();
 	}
 
-	std::list< moving_object_t * > obj_list;
-	std::copy( scl.begin(), scl.end(), obj_list.end() );
+	std::vector< moving_object_t * > obj_vec;
+	std::copy( scl.begin(), scl.end(), obj_vec.end() );
 	if( move_gravity_centers ) {
-		std::copy( masses.begin(), masses.end(), obj_list.end() );
+		std::copy( masses.begin(), masses.end(), obj_vec.end() );
 	}
 
 	//	First initialize all the forces
-	for( auto & obj: obj_list ) {
+	for( auto & obj: obj_vec ) {
 		obj->force.setZero();
 		obj->momentum.setZero();
 	}
 	//	Calculate gravity forces
-	for( auto & a: obj_list ) {
-		for( auto & b: obj_list ) {
+	for( auto & a: obj_vec ) {
+		for( auto & b: obj_vec ) {
+			vector dr = a->x - b->x;
+			double dr2 = dr.dot( dr );
+			dr.normalize();
+			vector f = Grav * a->mass * b->mass * dr / dr2;
+			//	Increment object gravity forces
+			a->force += f;
+			b->force += f;
+		}
+	}
+
+	for( auto & obj: obj_vec ) {
+		//	Increase coordinates
+		obj->x += obj->v * dt;
+		//	Increase velocites
+		obj->a = obj->force / obj->mass;
+		obj->v += obj->a * dt;
+	}
+}
+
+/*
+//	Possibly this function will be used in future for Runge-Kutta solver
+vectorX calc_Y( const vectorX & X, auto & obj_vec ) {
+
+	vectorX Y( X.size() );
+
+	//	Calculate gravity forces
+	vectorX force = vectorX::Zero( 3 * obj_vec.size() );
+	for( size_t i=0; i<obj_vec.size(); ++i ) {
+		for( size_t j=0; i<obj_vec.size(); ++j ) {
 			vector dr = a->x - b->x;
 			double dr2 = dr.dot( dr );
 			dr.normalize();
@@ -53,5 +85,6 @@ void motion_step( double dt,
 		}
 	}
 }
+*/
 
 }	//	namespace SoyuzSim
